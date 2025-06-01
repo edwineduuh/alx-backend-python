@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'messaging_app',
     'chats',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_filters',
 ]
 
@@ -150,6 +151,13 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/day',
         'user': '1000/day'
-    }
+    },
+
+    
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+
 }
 
