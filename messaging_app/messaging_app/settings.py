@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'messaging_app',
     'chats',
     'rest_framework',
+    'django_filters',
 ]
 
 # messaging_app/settings.py

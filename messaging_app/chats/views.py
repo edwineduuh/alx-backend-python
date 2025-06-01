@@ -1,8 +1,9 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Conversation, Message, User
-from chats.serializers import ConversationSerializer, MessageSerializer
+from .serializers import ConversationSerializer, MessageSerializer
 from django.shortcuts import get_object_or_404
 
 class ConversationViewSet(viewsets.ModelViewSet):
@@ -12,6 +13,11 @@ class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['participants']
+    search_fields = ['participants__email', 'participants__first_name']
+    ordering_fields = ['created_at', 'updated_at']
+    ordering = ['-updated_at']
 
     def get_queryset(self):
         """Return only conversations involving the current user"""
@@ -47,12 +53,17 @@ class MessageViewSet(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['conversation', 'sender', 'read']
+    search_fields = ['message_body']
+    ordering_fields = ['sent_at']
+    ordering = ['-sent_at']
 
     def get_queryset(self):
         """Return only messages in conversations the user is part of"""
         return Message.objects.filter(
             conversation__participants=self.request.user
-        ).order_by('-sent_at')
+        )
 
     def perform_create(self, serializer):
         """Create a new message in a conversation"""
@@ -63,5 +74,3 @@ class MessageViewSet(viewsets.ModelViewSet):
             participants=self.request.user
         )
         serializer.save(sender=self.request.user, conversation=conversation)
-
-# Create your views here.
