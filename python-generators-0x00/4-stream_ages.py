@@ -12,7 +12,7 @@ def paginate_users(page_size, offset):
 
 
 def stream_user_ages():
-    page_size = 100  # Hardcoded to comply with checker
+    page_size = 100
     offset = 0
     while True:
         users = paginate_users(page_size, offset)
