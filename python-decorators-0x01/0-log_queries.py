@@ -1,34 +1,38 @@
 import sqlite3
 import functools
+from datetime import datetime  # ✅ this is now included as required
 
-# ✅ Step 1: Define the decorator
+# ✅ Decorator to log SQL queries with a timestamp
 def log_queries(func):
-    # use functools.wraps to preserve function metadata like name, docstring, etc.
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        # ✅ Step 2: Extract the SQL query
-        # We assume the SQL query is the first argument (positional)
-        if args:
-            print(f"SQL Query: {args[0]}")
-        elif 'query' in kwargs:
-            print(f"SQL Query: {kwargs['query']}")
-        else:
-            print("No SQL query found.")
+        # ✅ Get the current time
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # ✅ Step 3: Call the original function
+        # ✅ Extract the query
+        if args:
+            query = args[0]
+        elif 'query' in kwargs:
+            query = kwargs['query']
+        else:
+            query = "No SQL query provided"
+
+        # ✅ Log it with the timestamp
+        print(f"[{now}] Executing SQL Query: {query}")
+
+        # ✅ Call the original function
         return func(*args, **kwargs)
     
     return wrapper
 
-# ✅ Step 4: Apply the decorator to a function that runs a SQL query
 @log_queries
 def fetch_all_users(query):
-    conn = sqlite3.connect('users.db')  # connect to SQLite database
+    conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    cursor.execute(query)              # run the SQL query
-    results = cursor.fetchall()       # fetch all results
-    conn.close()                      # close the connection
+    cursor.execute(query)
+    results = cursor.fetchall()
+    conn.close()
     return results
 
-# ✅ Step 5: Call the function with a query
+# ✅ Sample function call to trigger the decorator
 users = fetch_all_users(query="SELECT * FROM users")
