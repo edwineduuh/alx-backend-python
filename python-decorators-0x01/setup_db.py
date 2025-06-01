@@ -3,23 +3,23 @@ import sqlite3
 conn = sqlite3.connect('users.db')
 cursor = conn.cursor()
 
-# Create the table
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS users (
+# Drop existing table if needed
+cursor.execute("DROP TABLE IF EXISTS users")
+
+# Create table with an email column
+cursor.execute('''
+CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL
+    name TEXT NOT NULL,
+    email TEXT
 )
-""")
+''')
 
-# Insert example users
-cursor.execute("SELECT COUNT(*) FROM users")
-count = cursor.fetchone()[0]
+# Insert some sample users
+cursor.execute("INSERT INTO users (name, email) VALUES (?, ?)", ("Alice", "alice@example.com"))
+cursor.execute("INSERT INTO users (name, email) VALUES (?, ?)", ("Bob", "bob@example.com"))
 
-if count == 0:
-    cursor.execute("INSERT INTO users (name) VALUES ('Alice')")
-    cursor.execute("INSERT INTO users (name) VALUES ('Bob')")
-    conn.commit()
-
+conn.commit()
 conn.close()
 
-print("✅ Database and table setup complete.")
+print("✅ users table created and seeded.")
